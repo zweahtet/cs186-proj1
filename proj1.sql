@@ -90,19 +90,51 @@ AS
 -- Question 3i
 CREATE VIEW q3i(playerid, namefirst, namelast, yearid, slg)
 AS
-  SELECT 1, 1, 1, 1, 1 -- replace this line
+  SELECT pp.playerID, pp.namefirst, pp.namelast, bat.yearID, 
+    (bat.H + bat.H2B + 2*bat.H3B + 3*bat.HR + 0.0) / (bat.AB + 0.0) AS slg
+  FROM people pp LEFT OUTER JOIN batting bat
+    ON pp.playerID = bat.playerID
+  WHERE bat.AB > 50
+  ORDER BY slg DESC, bat.yearID ASC, pp.playerID ASC
+  LIMIT 10 
 ;
 
 -- Question 3ii
 CREATE VIEW q3ii(playerid, namefirst, namelast, lslg)
 AS
-  SELECT 1, 1, 1, 1 -- replace this line
+  WITH lifetimeslg(playerID, total) AS
+  (
+    SELECT playerID, (SUM(H) + SUM(H2B) + 2*SUM(H3B) + 3*SUM(HR) + 0.0) / (SUM(AB) + 0.0) AS total
+    FROM batting
+    GROUP BY playerID
+    HAVING SUM(AB) > 50
+  )
+  SELECT pp.playerID, pp.namefirst, pp.namelast, lf.total
+  FROM people pp INNER JOIN lifetimeslg lf
+  ON pp.playerID = lf.playerID
+  ORDER BY lf.total DESC, pp.playerID
+  LIMIT 10
 ;
 
 -- Question 3iii
 CREATE VIEW q3iii(namefirst, namelast, lslg)
 AS
-  SELECT 1, 1, 1 -- replace this line
+  WITH lifetimeslg(playerID, total) AS
+  (
+    SELECT playerID, (SUM(H) + SUM(H2B) + 2*SUM(H3B) + 3*SUM(HR) + 0.0) / (SUM(AB) + 0.0) AS total
+    FROM batting
+    GROUP BY playerID
+    HAVING SUM(AB) > 50
+  )
+  SELECT pp.namefirst, pp.namelast, lf.total
+  FROM people pp 
+    INNER JOIN lifetimeslg lf
+    ON pp.playerID = lf.playerID
+  WHERE lf.total > (
+    SELECT total
+    FROM lifetimeslg
+    WHERE playerID = "mayswi01"
+  )
 ;
 
 -- Question 4i
