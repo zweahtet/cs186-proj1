@@ -140,13 +140,22 @@ AS
 -- Question 4i
 CREATE VIEW q4i(yearid, min, max, avg)
 AS
-  SELECT 1, 1, 1, 1 -- replace this line
+  SELECT yearID, MIN(salary), MAX(salary), AVG(salary)
+  FROM salaries 
+  GROUP BY yearID
+  ORDER BY yearID
 ;
 
 -- Question 4ii
+-- reference source: https://popsql.com/sql-templates/analytics/how-to-create-histograms-in-sql
 CREATE VIEW q4ii(binid, low, high, count)
 AS
-  SELECT 1, 1, 1, 1 -- replace this line
+  SELECT CAST ((salary/3400000) AS INT) as binid, 
+  MIN(salary) as low, MAX(salary) as high, COUNT(*) as count
+  FROM salaries
+  WHERE yearID = 2016
+  GROUP BY 1
+  ORDER BY 1
 ;
 
 -- Question 4iii
